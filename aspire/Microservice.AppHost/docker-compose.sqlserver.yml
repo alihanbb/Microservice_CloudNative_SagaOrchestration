@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-customer
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - saga-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Adminer - SQL Server Management UI
+  adminer:
+    image: adminer:latest
+    container_name: adminer-customer
+    ports:
+      - "8082:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=sqlserver
+      - ADMINER_DESIGN=galkaev
+    networks:
+      - saga-network
+    depends_on:
+      - sqlserver
+
+  # Azure Data Studio Alternative - CloudBeaver
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver-customer
+    ports:
+      - "8083:8978"
+    volumes:
+      - cloudbeaver-data:/opt/cloudbeaver/workspace
+    networks:
+      - saga-network
+    depends_on:
+      - sqlserver
+
+volumes:
+  sqlserver-data:
+    driver: local
+  cloudbeaver-data:
+    driver: local
+
+networks:
+  saga-network:
+    driver: bridge

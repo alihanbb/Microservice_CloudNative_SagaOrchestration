@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0" />
 
@@ -14,10 +14,15 @@
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.5.0" />
     <PackageReference Include="Aspire.Hosting.Azure.CosmosDB" Version="9.5.0" />
     <PackageReference Include="Aspire.Hosting.Azure.KeyVault" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="9.5.0" />
+    <PackageReference Include="Aspire.Hosting.MongoDB" Version="9.5.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\services\Order\OrderServices.Api\OrderServices.Api.csproj" />
+    <ProjectReference Include="..\..\src\services\Customer\CustomerServices.Api\CustomerServices.Api.csproj" />
+    <ProjectReference Include="..\..\src\services\Product\ProductService.Api\ProductService.Api.csproj" />
+    <ProjectReference Include="..\..\src\gateway\YarpGateway\YarpGateway.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,11 +8,23 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.5.0" />
+    <PackageReference Include="Aspire.Azure.Security.KeyVault" Version="9.5.0" />
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.11" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CustomerServices.Application\CustomerServices.Application.csproj" />
     <ProjectReference Include="..\CustomerServices.Infra\CustomerServices.Infra.csproj" />
+    <ProjectReference Include="..\..\..\..\aspire\MicroService_ServiceDefaults\MicroService_ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
+
