@@ -1,5 +1,4 @@
-﻿
-using OrderServices.Domain.SeedWork;
+﻿using OrderServices.Domain.SeedWork;
 
 namespace OrderServices.Domain.Aggregate;
 
