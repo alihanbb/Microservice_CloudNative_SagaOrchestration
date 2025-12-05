@@ -26,28 +26,24 @@ public class CosmosDbInitializer : IHostedService
         {
             _logger.LogInformation("Initializing Cosmos DB database and container...");
 
-            // Create database if not exists
             var databaseResponse = await _cosmosClient.CreateDatabaseIfNotExistsAsync(
                 _configuration.DatabaseName,
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Database '{DatabaseName}' ready", _configuration.DatabaseName);
 
-            // Create container if not exists
             var containerProperties = new ContainerProperties
             {
                 Id = _configuration.ContainerName,
                 PartitionKeyPath = _configuration.PartitionKey,
-                DefaultTimeToLive = -1 // Enable TTL but don't set default
+                DefaultTimeToLive = -1 
             };
-
-            // Configure indexing policy for better query performance
             containerProperties.IndexingPolicy.IndexingMode = IndexingMode.Consistent;
             containerProperties.IndexingPolicy.IncludedPaths.Add(new IncludedPath { Path = "/*" });
             
             var containerResponse = await databaseResponse.Database.CreateContainerIfNotExistsAsync(
                 containerProperties,
-                throughput: 400, // RU/s - can be adjusted
+                throughput: 400, 
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation(

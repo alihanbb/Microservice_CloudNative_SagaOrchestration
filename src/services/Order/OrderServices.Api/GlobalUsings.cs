@@ -1,0 +1,12 @@
+global using MediatR;
+global using Microsoft.AspNetCore.Mvc;
+global using OrderServices.Application.Common;
+global using OrderServices.Application.Orders.CreateOrder;
+global using OrderServices.Application.Orders.GetOrderById;
+global using OrderServices.Application.Orders.GetOrdersByCustomer;
+global using OrderServices.Application.Orders.GetOrdersByStatus;
+global using OrderServices.Application.Orders.CancelOrder;
+global using OrderServices.Application.Orders.ConfirmOrder;
+global using OrderServices.Application.Orders.UpdateOrderStatus;
+global using OrderServices.Application.Orders.AddOrderItem;
+global using OrderServices.Application.Orders.RemoveOrderItem;
