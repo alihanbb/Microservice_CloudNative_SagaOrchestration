@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11222.16 d18.3
+VisualStudioVersion = 18.3.11222.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -59,7 +59,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationServices", "src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backup", "Backup", "{D1C188F8-AEA9-4D36-B68A-40BAFCD10120}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackupService", "src\services\Backup\BackupService\BackupService.csproj", "{44CC776C-93F2-4CDC-82EC-5B833A090DFD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackupServices", "src\services\Backup\BackupServices\BackupServices.csproj", "{C853C6C1-FB50-47A7-968E-61643D7B6FDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -139,10 +139,10 @@ Global
 		{EAA73C72-03A7-4C2C-AAC7-374C63F25091}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAA73C72-03A7-4C2C-AAC7-374C63F25091}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAA73C72-03A7-4C2C-AAC7-374C63F25091}.Release|Any CPU.Build.0 = Release|Any CPU
-		{44CC776C-93F2-4CDC-82EC-5B833A090DFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{44CC776C-93F2-4CDC-82EC-5B833A090DFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{44CC776C-93F2-4CDC-82EC-5B833A090DFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44CC776C-93F2-4CDC-82EC-5B833A090DFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C853C6C1-FB50-47A7-968E-61643D7B6FDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C853C6C1-FB50-47A7-968E-61643D7B6FDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C853C6C1-FB50-47A7-968E-61643D7B6FDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C853C6C1-FB50-47A7-968E-61643D7B6FDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,7 +173,7 @@ Global
 		{A0E9B4F7-720A-487F-AD36-438F58824A95} = {9CD01477-07F0-4CF0-8021-83B0C03BC375}
 		{EAA73C72-03A7-4C2C-AAC7-374C63F25091} = {A0E9B4F7-720A-487F-AD36-438F58824A95}
 		{D1C188F8-AEA9-4D36-B68A-40BAFCD10120} = {9CD01477-07F0-4CF0-8021-83B0C03BC375}
-		{44CC776C-93F2-4CDC-82EC-5B833A090DFD} = {D1C188F8-AEA9-4D36-B68A-40BAFCD10120}
+		{C853C6C1-FB50-47A7-968E-61643D7B6FDF} = {D1C188F8-AEA9-4D36-B68A-40BAFCD10120}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D7DCDF35-91E1-459A-A650-D5906596355B}
