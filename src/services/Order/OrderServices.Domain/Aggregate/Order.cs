@@ -1,10 +1,10 @@
 ﻿using OrderServices.Domain.Events;
 using OrderServices.Domain.Exceptions;
-using OrderServices.Domain.SeedWork;
+using SharedLibrary.SeedWork;
 
 namespace OrderServices.Domain.Aggregate;
 
-public class Order : OrderEntity, IAggregateRoot
+public class Order : Entity, IAggregateRoot
 {
     public Guid CustomerId { get; private set; }
     public string CustomerName { get; private set; } = string.Empty;    

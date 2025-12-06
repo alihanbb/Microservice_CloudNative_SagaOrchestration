@@ -2,10 +2,6 @@ using OrderServices.Application.Common;
 
 namespace OrderServices.Application.Behaviors;
 
-/// <summary>
-/// Pipeline behavior for handling transactions
-/// Wraps command execution in a database transaction
-/// </summary>
 public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {

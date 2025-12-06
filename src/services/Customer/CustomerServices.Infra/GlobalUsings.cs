@@ -1,0 +1,10 @@
+global using MediatR;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.EntityFrameworkCore.Storage;
+global using CustomerServices.Domain.Aggregate;
+global using CustomerServices.Domain.Events;
+global using CustomerServices.Domain.ValueObjects;
+global using CustomerServices.Infra.EventSourcing;
+global using CustomerServices.Infra.EntityConfigurations;
+global using SharedLibrary.SeedWork;

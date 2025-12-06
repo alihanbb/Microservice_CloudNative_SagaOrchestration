@@ -5,7 +5,7 @@ public static class MediatorExtension
     public static async Task DispatchDomainEventsAsync(this IMediator mediator, OrderDbContext ctx)
     {
         var domainEntities = ctx.ChangeTracker
-            .Entries<OrderEntity>()
+            .Entries<Entity>()
             .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Count != 0)
             .ToList();
 

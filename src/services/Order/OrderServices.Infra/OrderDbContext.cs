@@ -1,4 +1,6 @@
-﻿namespace OrderServices.Infra;
+﻿using SharedLibrary.SeedWork;
+
+namespace OrderServices.Infra;
 
 public class OrderDbContext : DbContext, IUnitOfWork
 {

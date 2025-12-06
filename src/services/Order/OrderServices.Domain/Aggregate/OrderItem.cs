@@ -1,10 +1,10 @@
 ﻿
 using OrderServices.Domain.Exceptions;
-using OrderServices.Domain.SeedWork;
+using SharedLibrary.SeedWork;
 
 namespace OrderServices.Domain.Aggregate;
 
-public sealed class OrderItem : OrderEntity
+public sealed class OrderItem : Entity
 {
     public Guid ProductId { get; private set; }
     public string ProductName { get; private set; } = string.Empty;

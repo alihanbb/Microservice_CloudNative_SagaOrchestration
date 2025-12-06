@@ -1,43 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/aspire-8.0.json",
   "resources": {
-    "cosmos": {
-      "type": "azure.cosmosdb.account.v1",
-      "connectionString": "{cosmos.connectionString}",
-      "databases": {
-        "orderdb": {
-          "type": "azure.cosmosdb.database.v1"
-        }
-      }
-    },
-    "keyvault": {
-      "type": "azure.keyvault.v1",
-      "connectionString": "{keyvault.connectionString}"
-    },
-    "orderservice": {
-      "type": "project.v1",
-      "path": "../../src/services/Order/OrderServices.Api/OrderServices.Api.csproj",
-      "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "CosmosDb__DatabaseName": "orderdb",
-        "CosmosDb__ContainerName": "orders"
-      },
-      "bindings": {
-        "http": {
-          "scheme": "http",
-          "protocol": "tcp",
-          "transport": "http",
-          "targetPort": 8080,
-          "external": true
-        },
-        "https": {
-          "scheme": "https",
-          "protocol": "tcp",
-          "transport": "http",
-          "targetPort": 8443,
-          "external": true
-        }
-      }
-    }
+   
   }
 }

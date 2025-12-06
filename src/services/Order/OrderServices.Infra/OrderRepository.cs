@@ -1,4 +1,5 @@
-﻿namespace OrderServices.Infra;
+﻿using SharedLibrary.SeedWork;
+namespace OrderServices.Infra;
 
 public class OrderRepository : IOrderRepository
 {
