@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
@@ -22,10 +24,12 @@
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.11" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.11" />
     <PackageReference Include="MediatR" Version="14.0.0" />
-  </ItemGroup>
+      <PackageReference Include="AspNetCore.HealthChecks.UI" Version="8.0.2" />
+      <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\shared\SharedLibrary\SharedLibrary.csproj" />
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\..\shared\SharedLibrary\SharedLibrary.csproj" />
     <ProjectReference Include="..\CustomerServices.Application\CustomerServices.Application.csproj" />
     <ProjectReference Include="..\CustomerServices.Infra\CustomerServices.Infra.csproj" />
   </ItemGroup>

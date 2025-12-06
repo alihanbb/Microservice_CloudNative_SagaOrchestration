@@ -1,8 +1,5 @@
 namespace CustomerServices.Application.Common;
 
-/// <summary>
-/// Generic result wrapper for CQRS operations
-/// </summary>
 public class Result<T>
 {
     public bool IsSuccess { get; }
@@ -23,9 +20,6 @@ public class Result<T>
     public static Result<T> Failure(IReadOnlyList<string> errors) => new(false, default, errors.FirstOrDefault(), errors);
 }
 
-/// <summary>
-/// Non-generic result for commands that don't return data
-/// </summary>
 public class Result
 {
     public bool IsSuccess { get; }

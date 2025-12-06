@@ -3,10 +3,6 @@ using CustomerServices.Application.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomerServices.Application;
-
-/// <summary>
-/// Extension methods for registering Application layer services
-/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)

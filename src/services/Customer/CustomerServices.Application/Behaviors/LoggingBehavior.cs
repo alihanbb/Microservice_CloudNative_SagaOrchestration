@@ -2,9 +2,6 @@ using Microsoft.Extensions.Logging;
 
 namespace CustomerServices.Application.Behaviors;
 
-/// <summary>
-/// Pipeline behavior for logging requests
-/// </summary>
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {

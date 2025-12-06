@@ -1,8 +1,5 @@
 namespace CustomerServices.Application.Common.Exceptions;
 
-/// <summary>
-/// Exception thrown when validation fails
-/// </summary>
 public class ValidationException : Exception
 {
     public IReadOnlyDictionary<string, string[]> Errors { get; }
@@ -20,9 +17,6 @@ public class ValidationException : Exception
     }
 }
 
-/// <summary>
-/// Exception thrown when entity is not found
-/// </summary>
 public class NotFoundException : Exception
 {
     public NotFoundException() : base() { }
@@ -30,9 +24,6 @@ public class NotFoundException : Exception
     public NotFoundException(string name, object key) : base($"Entity \"{name}\" ({key}) was not found.") { }
 }
 
-/// <summary>
-/// Exception thrown for concurrency conflicts
-/// </summary>
 public class ConcurrencyException : Exception
 {
     public ConcurrencyException() : base("A concurrency conflict occurred.") { }

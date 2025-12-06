@@ -28,7 +28,7 @@ public static class CustomerServiceExtensions
 
         builder.Services.AddEndpoints();
 
-        builder.Services.AddCustomerServiceHealthChecks();
+        builder.Services.AddCustomerServiceHealthChecks(builder.Configuration);
 
         builder.Services.AddCustomerServiceSwagger();
 

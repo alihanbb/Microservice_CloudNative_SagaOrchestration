@@ -1,11 +1,16 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CustomerServices.Api.Extensions;
 
 public static class HealthCheckExtensions
 {
-    public static IServiceCollection AddCustomerServiceHealthChecks(this IServiceCollection services)
+    public static IServiceCollection AddCustomerServiceHealthChecks(this IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("customerdb") 
+            ?? throw new InvalidOperationException("Connection string 'customerdb' not found.");
+
         services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy("Customer API is running"),
                 tags: ["api", "ready", "live"])
@@ -17,10 +22,28 @@ public static class HealthCheckExtensions
                     ? HealthCheckResult.Healthy($"Memory: {allocated / 1024 / 1024} MB")
                     : HealthCheckResult.Degraded($"Memory high: {allocated / 1024 / 1024} MB");
             }, tags: ["api", "memory"])
-            .AddDbContextCheck<CustomerDbContext>(
+            // SQL Server baðlantý kontrolü
+            .AddSqlServer(
+                connectionString: connectionString,
                 name: "sqlserver",
                 failureStatus: HealthStatus.Unhealthy,
-                tags: ["database", "sqlserver", "ready"]);
+                tags: ["database", "sqlserver", "ready"])
+            // DbContext üzerinden EF Core kontrolü
+            .AddDbContextCheck<CustomerDbContext>(
+                name: "ef-core-customerdb",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: ["database", "ef-core", "ready"]);
+
+        // Health Check UI yapýlandýrmasý
+        services.AddHealthChecksUI(options =>
+        {
+            options.SetEvaluationTimeInSeconds(30); // Her 30 saniyede bir kontrol
+            options.MaximumHistoryEntriesPerEndpoint(50); // Endpoint baþýna maksimum 50 geçmiþ kaydý
+            options.SetApiMaxActiveRequests(1); // Ayný anda maksimum 1 istek
+
+            options.AddHealthCheckEndpoint("Customer API", "/health");
+        })
+        .AddInMemoryStorage();
 
         return services;
     }
@@ -28,6 +51,32 @@ public static class HealthCheckExtensions
     public static WebApplication UseCustomerServiceHealthChecks(this WebApplication app)
     {
         app.MapEndpoints();
+
+        // Health Check endpoint'leri
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            Predicate = _ => true,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+
+        app.MapHealthChecks("/ready", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("ready"),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+
+        app.MapHealthChecks("/live", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("live"),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+
+        // Health Check UI endpoint'leri
+        app.MapHealthChecksUI(options =>
+        {
+            options.UIPath = "/health-ui"; // UI sayfasý
+            options.ApiPath = "/health-ui-api"; // UI API endpoint'i
+        });
 
         app.MapGet("/", () => Results.Ok(new
         {
@@ -40,6 +89,7 @@ public static class HealthCheckExtensions
             {
                 Documentation = "/swagger",
                 Health = "/health",
+                HealthUI = "/health-ui",
                 Ready = "/ready",
                 Live = "/live",
                 Customers = "/api/customers"
