@@ -2,15 +2,8 @@
 
 namespace CustomerServices.Domain.Aggregate;
 
-/// <summary>
-/// Customer Aggregate Root with Event Sourcing support
-/// All state changes are tracked through domain events
-/// </summary>
 public sealed class Customer : Entity, IAggregateRoot
 {
-    // ============================================
-    // PROPERTIES
-    // ============================================
     
     public CustomerName Name { get; private set; } = null!;
     public Email Email { get; private set; } = null!;
@@ -22,23 +15,10 @@ public sealed class Customer : Entity, IAggregateRoot
     public DateTime? VerifiedAt { get; private set; }
     public DateTime? DeletedAt { get; private set; }
     
-    /// <summary>
-    /// Version number for optimistic concurrency and event sourcing
-    /// </summary>
     public int Version { get; private set; }
 
-    // ============================================
-    // CONSTRUCTORS
-    // ============================================
-    
-    /// <summary>
-    /// EF Core constructor
-    /// </summary>
     private Customer() { }
 
-    /// <summary>
-    /// Creates a new customer with required fields
-    /// </summary>
     private Customer(string firstName, string lastName, string email)
     {
         Name = CustomerName.Create(firstName, lastName);
@@ -47,7 +27,6 @@ public sealed class Customer : Entity, IAggregateRoot
         CreatedAt = DateTime.UtcNow;
         Version = 1;
 
-        // Raise domain event
         AddDomainEvent(new CustomerCreatedDomainEvent(
             Id,
             firstName,
@@ -56,21 +35,11 @@ public sealed class Customer : Entity, IAggregateRoot
             Version));
     }
 
-    // ============================================
-    // FACTORY METHODS
-    // ============================================
-
-    /// <summary>
-    /// Factory method to create a new customer
-    /// </summary>
     public static Customer Create(string firstName, string lastName, string email)
     {
         return new Customer(firstName, lastName, email);
     }
 
-    /// <summary>
-    /// Factory method to create customer with full details
-    /// </summary>
     public static Customer CreateWithDetails(
         string firstName,
         string lastName,
@@ -99,13 +68,6 @@ public sealed class Customer : Entity, IAggregateRoot
         return customer;
     }
 
-    // ============================================
-    // BUSINESS METHODS (Commands)
-    // ============================================
-
-    /// <summary>
-    /// Updates customer name
-    /// </summary>
     public void UpdateName(string firstName, string lastName)
     {
         EnsureNotDeleted();
@@ -126,9 +88,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Version));
     }
 
-    /// <summary>
-    /// Changes customer email
-    /// </summary>
     public void ChangeEmail(string newEmail)
     {
         EnsureNotDeleted();
@@ -137,13 +96,12 @@ public sealed class Customer : Entity, IAggregateRoot
         var newEmailVO = ValueObjects.Email.Create(newEmail);
 
         if (Email == newEmailVO)
-            return; // No change needed
+            return; 
 
         Email = newEmailVO;
         IncrementVersion();
         UpdateTimestamp();
 
-        // Email change may require re-verification
         if (Status == CustomerStatus.Active)
         {
             Status = CustomerStatus.PendingVerification;
@@ -157,9 +115,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Version));
     }
 
-    /// <summary>
-    /// Changes customer phone number
-    /// </summary>
     public void ChangePhone(string countryCode, string phoneNumber)
     {
         EnsureNotDeleted();
@@ -175,9 +130,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Version));
     }
 
-    /// <summary>
-    /// Removes customer phone number
-    /// </summary>
     public void RemovePhone()
     {
         EnsureNotDeleted();
@@ -190,9 +142,6 @@ public sealed class Customer : Entity, IAggregateRoot
         UpdateTimestamp();
     }
 
-    /// <summary>
-    /// Changes customer address
-    /// </summary>
     public void ChangeAddress(string street, string city, string state, string country, string zipCode)
     {
         EnsureNotDeleted();
@@ -211,9 +160,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Version));
     }
 
-    /// <summary>
-    /// Removes customer address
-    /// </summary>
     public void RemoveAddress()
     {
         EnsureNotDeleted();
@@ -226,9 +172,6 @@ public sealed class Customer : Entity, IAggregateRoot
         UpdateTimestamp();
     }
 
-    /// <summary>
-    /// Verifies the customer account
-    /// </summary>
     public void Verify()
     {
         EnsureNotDeleted();
@@ -247,9 +190,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Id, oldStatus, Status.Name, "Email verified", Version));
     }
 
-    /// <summary>
-    /// Activates an inactive customer
-    /// </summary>
     public void Activate(string? reason = null)
     {
         EnsureNotDeleted();
@@ -269,9 +209,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Id, oldStatus, Status.Name, reason, Version));
     }
 
-    /// <summary>
-    /// Deactivates the customer
-    /// </summary>
     public void Deactivate(string? reason = null)
     {
         EnsureNotDeleted();
@@ -288,9 +225,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Id, oldStatus, Status.Name, reason, Version));
     }
 
-    /// <summary>
-    /// Suspends the customer account
-    /// </summary>
     public void Suspend(string reason)
     {
         EnsureNotDeleted();
@@ -310,9 +244,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Id, oldStatus, Status.Name, reason, Version));
     }
 
-    /// <summary>
-    /// Soft deletes the customer
-    /// </summary>
     public void Delete(string reason)
     {
         if (Status == CustomerStatus.Deleted)
@@ -332,9 +263,6 @@ public sealed class Customer : Entity, IAggregateRoot
             Id, oldStatus, Status.Name, reason, Version));
     }
 
-    // ============================================
-    // QUERY METHODS
-    // ============================================
 
     public bool IsActive() => Status == CustomerStatus.Active;
     public bool IsVerified() => VerifiedAt.HasValue;
@@ -342,13 +270,6 @@ public sealed class Customer : Entity, IAggregateRoot
     public bool IsSuspended() => Status == CustomerStatus.Suspended;
     public bool CanBeModified() => !IsDeleted();
 
-    // ============================================
-    // EVENT SOURCING - APPLY METHODS
-    // ============================================
-
-    /// <summary>
-    /// Applies a domain event to rebuild state (Event Sourcing)
-    /// </summary>
     public void Apply(CustomerDomainEvent @event)
     {
         switch (@event)

@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text.Json;
-using OrderServices.Application.Common.Exceptions;
+using SharedLibrary.Exceptions;
 using OrderServices.Domain.Exceptions;
 
 namespace OrderServices.Api.Middleware;

@@ -1,8 +1,5 @@
 namespace CustomerServices.Domain.ValueObjects;
 
-/// <summary>
-/// Value Object representing a postal address
-/// </summary>
 public sealed class Address : ValueObject
 {
     public string Street { get; private set; }

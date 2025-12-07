@@ -1,8 +1,5 @@
 namespace CustomerServices.Domain.ValueObjects;
 
-/// <summary>
-/// Value Object representing customer name
-/// </summary>
 public sealed class CustomerName : ValueObject
 {
     public string FirstName { get; private set; }

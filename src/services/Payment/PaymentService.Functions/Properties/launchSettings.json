@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "PaymentService.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 0",
+      "launchBrowser": false
+    }
+  }
+}

@@ -3,3 +3,7 @@ global using FluentValidation;
 global using OrderServices.Domain.Aggregate;
 global using OrderServices.Domain.Exceptions;
 global using SharedLibrary.SeedWork;
+global using SharedLibrary.Response;
+global using SharedLibrary.Interfaces;
+global using SharedLibrary.Behaviors;
+global using SharedLibrary.Exceptions;

@@ -1,7 +1,8 @@
 global using MediatR;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
-global using OrderServices.Application.Common;
+global using SharedLibrary.Response;
+global using SharedLibrary.Exceptions;
 global using OrderServices.Application.Orders.CreateOrder;
 global using OrderServices.Application.Orders.GetOrderById;
 global using OrderServices.Application.Orders.GetOrdersByCustomer;

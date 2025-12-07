@@ -19,7 +19,6 @@ services:
       retries: 10
       start_period: 30s
 
-  # Azure CosmosDB Emulator
   cosmosdb:
     image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
     container_name: cosmosdb-emulator
@@ -51,11 +50,78 @@ services:
         limits:
           memory: 4G
           cpus: '2'
-  # CosmosDB Emulator Data Explorer is built-in and accessible at:
-  # https://localhost:8081/_explorer/index.html
-  # No separate container needed - the emulator includes its own explorer
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    container_name: azurite
+    hostname: azurite
+    ports:
+      - "10000:10000" # Blob service
+      - "10001:10001" # Queue service
+      - "10002:10002" # Table service
+    volumes:
+      - azurite_data:/data
+    networks:
+      - saga-network
+    command: "azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 -l /data --debug /data/debug.log"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "127.0.0.1", "10000" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      
 
+  sqlserver-backup:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-backup
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1474:1433"
+    volumes:
+      - sqlserver_backup_data:/var/opt/mssql
+    networks:
+      - saga-network
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
+  cosmosdb-backup:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: cosmosdb-backup
+    hostname: cosmosdb-backup
+    environment:
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+      - AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1
+    ports:
+      - "8082:8081" # CosmosDB HTTPS endpoint (backup)
+      - "12250:10250"
+      - "12251:10251"
+      - "12252:10252"
+      - "12253:10253"
+      - "12254:10254"
+      - "12255:10255"
+    volumes:
+      - cosmosdb_backup_data:/tmp/cosmos/appdata
+    networks:
+      - saga-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -k https://localhost:8081/_explorer/emulator.pem || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
 
 networks:
   saga-network:
@@ -64,3 +130,6 @@ networks:
 volumes:
   sqlserver_data:
   cosmosdb_data:
+  azurite_data:
+  sqlserver_backup_data:
+  cosmosdb_backup_data:

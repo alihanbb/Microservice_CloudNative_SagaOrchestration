@@ -1,9 +1,5 @@
 namespace CustomerServices.Infra.EntityConfigurations;
 
-/// <summary>
-/// EF Core configuration for Customer entity
-/// Maps aggregate root with value objects
-/// </summary>
 public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
@@ -15,10 +11,8 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
         builder.Property(c => c.Id)
             .UseHiLo("customerseq", CustomerDbContext.DEFAULT_SCHEMA);
 
-        // Ignore domain events
         builder.Ignore(c => c.DomainEvents);
 
-        // CustomerName Value Object (Owned Entity)
         builder.OwnsOne(c => c.Name, nameBuilder =>
         {
             nameBuilder.Property(n => n.FirstName)
@@ -32,7 +26,6 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
                 .IsRequired();
         });
 
-        // Email Value Object (Owned Entity)
         builder.OwnsOne(c => c.Email, emailBuilder =>
         {
             emailBuilder.Property(e => e.Value)
@@ -45,7 +38,6 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
                 .HasDatabaseName("IX_Customers_Email");
         });
 
-        // Phone Value Object (Owned Entity - Optional)
         builder.OwnsOne(c => c.Phone, phoneBuilder =>
         {
             phoneBuilder.Property(p => p.CountryCode)
@@ -57,7 +49,6 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
                 .HasMaxLength(20);
         });
 
-        // Address Value Object (Owned Entity - Optional)
         builder.OwnsOne(c => c.Address, addressBuilder =>
         {
             addressBuilder.Property(a => a.Street)
@@ -81,7 +72,6 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
                 .HasMaxLength(20);
         });
 
-        // CustomerStatus Value Object (Owned Entity)
         builder.OwnsOne(c => c.Status, statusBuilder =>
         {
             statusBuilder.Property(s => s.Id)
@@ -94,7 +84,6 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
                 .IsRequired();
         });
 
-        // Scalar properties
         builder.Property(c => c.CreatedAt)
             .IsRequired();
 
@@ -108,11 +97,9 @@ public class CustomerEntityTypeConfiguration : IEntityTypeConfiguration<Customer
             .IsConcurrencyToken()
             .IsRequired();
 
-        // Indexes
         builder.HasIndex(c => c.CreatedAt)
             .HasDatabaseName("IX_Customers_CreatedAt");
 
-        // Query filter for soft delete
-        builder.HasQueryFilter(c => c.Status.Id != 4); // 4 = Deleted
+        builder.HasQueryFilter(c => c.Status.Id != 4); 
     }
 }

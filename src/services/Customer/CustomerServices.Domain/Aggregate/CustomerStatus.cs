@@ -1,9 +1,5 @@
 namespace CustomerServices.Domain.Aggregate;
 
-/// <summary>
-/// Enumeration class for Customer Status
-/// Follows the Smart Enum pattern
-/// </summary>
 public sealed class CustomerStatus : ValueObject
 {
     public static readonly CustomerStatus Active = new(1, nameof(Active));

@@ -1,4 +1,4 @@
-using CustomerServices.Application.Common;
+using SharedLibrary.Response;
 
 namespace CustomerServices.Api.Contracts.Responses;
 

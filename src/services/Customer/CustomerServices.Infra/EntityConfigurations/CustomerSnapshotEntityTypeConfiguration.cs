@@ -1,10 +1,5 @@
-using CustomerServices.Infra.EventSourcing;
-
 namespace CustomerServices.Infra.EntityConfigurations;
 
-/// <summary>
-/// EF Core configuration for CustomerSnapshot
-/// </summary>
 public class CustomerSnapshotEntityTypeConfiguration : IEntityTypeConfiguration<CustomerSnapshot>
 {
     public void Configure(EntityTypeBuilder<CustomerSnapshot> builder)
@@ -28,7 +23,6 @@ public class CustomerSnapshotEntityTypeConfiguration : IEntityTypeConfiguration<
         builder.Property(s => s.CreatedAt)
             .IsRequired();
 
-        // Index for querying snapshots
         builder.HasIndex(s => new { s.CustomerId, s.Version })
             .HasDatabaseName("IX_CustomerSnapshots_CustomerId_Version");
     }

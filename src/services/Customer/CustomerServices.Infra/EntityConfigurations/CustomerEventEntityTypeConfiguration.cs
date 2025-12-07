@@ -1,10 +1,4 @@
-using CustomerServices.Infra.EventSourcing;
-
 namespace CustomerServices.Infra.EntityConfigurations;
-
-/// <summary>
-/// EF Core configuration for CustomerEventEntity (Event Store)
-/// </summary>
 public class CustomerEventEntityTypeConfiguration : IEntityTypeConfiguration<CustomerEventEntity>
 {
     public void Configure(EntityTypeBuilder<CustomerEventEntity> builder)
@@ -38,7 +32,6 @@ public class CustomerEventEntityTypeConfiguration : IEntityTypeConfiguration<Cus
         builder.Property(e => e.StoredAt)
             .IsRequired();
 
-        // Indexes for querying events
         builder.HasIndex(e => e.CustomerId)
             .HasDatabaseName("IX_CustomerEvents_CustomerId");
 

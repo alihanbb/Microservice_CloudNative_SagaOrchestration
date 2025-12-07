@@ -1,7 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using CustomerServices.Application.Common.Exceptions;
+
 using CustomerServices.Domain.Exceptions;
+using SharedLibrary.Exceptions;
 
 namespace CustomerServices.Api.Middleware;
 
@@ -32,7 +33,7 @@ public class GlobalExceptionMiddleware
     {
         var (statusCode, response) = exception switch
         {
-            Application.Common.Exceptions.ValidationException validationEx => (
+            ValidationException validationEx => (
                 HttpStatusCode.BadRequest,
                 new ErrorResponse("Validation Error", "One or more validation errors occurred",
                     validationEx.Errors.SelectMany(e => e.Value).ToList())),

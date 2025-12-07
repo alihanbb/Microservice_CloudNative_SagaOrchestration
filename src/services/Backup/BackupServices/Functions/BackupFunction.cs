@@ -1,89 +1,224 @@
+using BackupServices.Models;
+using BackupServices.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace BackupServices.Functions;
 
-/// <summary>
-/// Main backup function for handling backup operations
-/// </summary>
 public class BackupFunction
 {
     private readonly ILogger<BackupFunction> _logger;
+    private readonly IEnumerable<ISyncService> _syncServices;
 
-    public BackupFunction(ILogger<BackupFunction> logger)
+    public BackupFunction(
+        ILogger<BackupFunction> logger,
+        IEnumerable<ISyncService> syncServices)
     {
         _logger = logger;
+        _syncServices = syncServices;
     }
 
-    /// <summary>
-    /// Trigger a backup operation
-    /// </summary>
-    [Function("TriggerBackup")]
-    public async Task<IActionResult> TriggerBackup(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "backup/trigger")] HttpRequest req)
+    [Function("TriggerSync")]
+    public async Task<IActionResult> TriggerSync(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "backup/sync")] HttpRequest req)
     {
-        _logger.LogInformation("Backup triggered at {Time}", DateTime.UtcNow);
+        _logger.LogInformation("Sync triggered at {Time}", DateTime.UtcNow);
 
         try
         {
-            // TODO: Implement actual backup logic here
-            await Task.Delay(100); // Simulated backup operation
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var syncRequest = string.IsNullOrEmpty(requestBody)
+                ? new SyncRequest()
+                : JsonConvert.DeserializeObject<SyncRequest>(requestBody) ?? new SyncRequest();
+
+            var results = new List<SyncResult>();
+            var servicesToSync = GetServicesToSync(syncRequest.Service);
+
+            foreach (var service in servicesToSync)
+            {
+                _logger.LogInformation("Starting sync for service: {ServiceName}", service.ServiceName);
+                var result = await service.SyncAsync(syncRequest.ForceFullSync);
+                results.Add(result);
+            }
+
+            var allSucceeded = results.All(r => r.Status == SyncStatus.Completed);
 
             return new OkObjectResult(new
             {
-                Success = true,
-                Message = "Backup triggered successfully",
-                BackupId = Guid.NewGuid(),
+                Success = allSucceeded,
+                Message = allSucceeded
+                    ? "All syncs completed successfully"
+                    : "Some syncs failed",
+                Results = results.Select(r => new
+                {
+                    r.SyncId,
+                    r.ServiceName,
+                    Status = r.Status.ToString(),
+                    r.InsertedCount,
+                    r.UpdatedCount,
+                    r.DeletedCount,
+                    r.SkippedCount,
+                    r.TotalProcessed,
+                    r.StartedAt,
+                    r.CompletedAt,
+                    r.ErrorMessage
+                }),
                 Timestamp = DateTime.UtcNow
             });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during backup operation");
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            _logger.LogError(ex, "Error during sync operation");
+            return new ObjectResult(new
+            {
+                Success = false,
+                Message = "Sync operation failed",
+                Error = ex.Message
+            })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
         }
     }
 
-    /// <summary>
-    /// Get backup status
-    /// </summary>
-    [Function("GetBackupStatus")]
-    public IActionResult GetBackupStatus(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "backup/status/{backupId}")] HttpRequest req,
-        string backupId)
+    [Function("SyncCustomer")]
+    public async Task<IActionResult> SyncCustomer(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "backup/sync/customer")] HttpRequest req)
     {
-        _logger.LogInformation("Getting backup status for {BackupId}", backupId);
+        _logger.LogInformation("Customer sync triggered at {Time}", DateTime.UtcNow);
 
-        // TODO: Implement actual status retrieval from storage
-        return new OkObjectResult(new
+        try
         {
-            BackupId = backupId,
-            Status = "Completed",
-            Progress = 100,
-            Timestamp = DateTime.UtcNow
-        });
+            var forceFullSync = req.Query["force"].FirstOrDefault()?.ToLower() == "true";
+            
+            var customerService = _syncServices.FirstOrDefault(s => s.ServiceName == "customer");
+            if (customerService == null)
+            {
+                return new NotFoundObjectResult(new { Error = "Customer sync service not configured" });
+            }
+
+            var result = await customerService.SyncAsync(forceFullSync);
+
+            return new OkObjectResult(new
+            {
+                Success = result.Status == SyncStatus.Completed,
+                result.SyncId,
+                result.ServiceName,
+                Status = result.Status.ToString(),
+                result.InsertedCount,
+                result.UpdatedCount,
+                result.DeletedCount,
+                result.SkippedCount,
+                result.TotalProcessed,
+                result.StartedAt,
+                result.CompletedAt,
+                result.ErrorMessage
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during customer sync");
+            return new ObjectResult(new { Error = ex.Message })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
     }
 
-    /// <summary>
-    /// List all backups
-    /// </summary>
-    [Function("ListBackups")]
-    public IActionResult ListBackups(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "backup/list")] HttpRequest req)
+    [Function("SyncOrder")]
+    public async Task<IActionResult> SyncOrder(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "backup/sync/order")] HttpRequest req)
     {
-        _logger.LogInformation("Listing all backups");
+        _logger.LogInformation("Order sync triggered at {Time}", DateTime.UtcNow);
 
-        // TODO: Implement actual backup listing from storage
-        return new OkObjectResult(new
+        try
         {
-            Backups = new[]
+            var forceFullSync = req.Query["force"].FirstOrDefault()?.ToLower() == "true";
+            
+            var orderService = _syncServices.FirstOrDefault(s => s.ServiceName == "order");
+            if (orderService == null)
             {
-                new { Id = Guid.NewGuid(), Status = "Completed", CreatedAt = DateTime.UtcNow.AddDays(-1) },
-                new { Id = Guid.NewGuid(), Status = "Completed", CreatedAt = DateTime.UtcNow.AddDays(-2) }
-            },
-            TotalCount = 2
-        });
+                return new NotFoundObjectResult(new { Error = "Order sync service not configured" });
+            }
+
+            var result = await orderService.SyncAsync(forceFullSync);
+
+            return new OkObjectResult(new
+            {
+                Success = result.Status == SyncStatus.Completed,
+                result.SyncId,
+                result.ServiceName,
+                Status = result.Status.ToString(),
+                result.InsertedCount,
+                result.UpdatedCount,
+                result.DeletedCount,
+                result.SkippedCount,
+                result.TotalProcessed,
+                result.StartedAt,
+                result.CompletedAt,
+                result.ErrorMessage
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during order sync");
+            return new ObjectResult(new { Error = ex.Message })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    [Function("InitializeBackup")]
+    public async Task<IActionResult> InitializeBackup(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "backup/initialize")] HttpRequest req)
+    {
+        _logger.LogInformation("Backup database initialization triggered at {Time}", DateTime.UtcNow);
+
+        try
+        {
+            var results = new List<object>();
+
+            foreach (var service in _syncServices)
+            {
+                try
+                {
+                    await service.InitializeBackupDatabaseAsync();
+                    results.Add(new { Service = service.ServiceName, Status = "Initialized" });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new { Service = service.ServiceName, Status = "Failed", Error = ex.Message });
+                }
+            }
+
+            return new OkObjectResult(new
+            {
+                Success = results.All(r => ((dynamic)r).Status == "Initialized"),
+                Results = results,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during backup initialization");
+            return new ObjectResult(new { Error = ex.Message })
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
+    }
+
+    private IEnumerable<ISyncService> GetServicesToSync(string service)
+    {
+        return service.ToLower() switch
+        {
+            "customer" => _syncServices.Where(s => s.ServiceName == "customer"),
+            "order" => _syncServices.Where(s => s.ServiceName == "order"),
+            _ => _syncServices // "all" or default
+        };
     }
 }

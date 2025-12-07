@@ -1,8 +1,5 @@
 namespace CustomerServices.Domain.ValueObjects;
 
-/// <summary>
-/// Value Object representing a phone number
-/// </summary>
 public sealed class PhoneNumber : ValueObject
 {
     public string CountryCode { get; private set; }

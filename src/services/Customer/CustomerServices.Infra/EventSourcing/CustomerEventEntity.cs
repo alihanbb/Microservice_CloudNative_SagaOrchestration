@@ -2,9 +2,6 @@ using System.Text.Json;
 
 namespace CustomerServices.Infra.EventSourcing;
 
-/// <summary>
-/// Entity for storing domain events in the database (Event Store)
-/// </summary>
 public class CustomerEventEntity
 {
     public long Id { get; set; }

@@ -1,6 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using OrderServices.Application.Behaviors;
+using SharedLibrary.Behaviors;
 
 namespace OrderServices.Application;
 
@@ -24,7 +24,6 @@ public static class DependencyInjection
             // Register pipeline behaviors in order of execution
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            // Note: TransactionBehavior removed - CosmosDB persists immediately without UnitOfWork
         });
 
         // Register FluentValidation validators

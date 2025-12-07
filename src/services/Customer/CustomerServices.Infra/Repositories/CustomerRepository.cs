@@ -1,9 +1,5 @@
 namespace CustomerServices.Infra.Repositories;
 
-/// <summary>
-/// Repository implementation for Customer aggregate
-/// Provides data access with Unit of Work pattern
-/// </summary>
 public class CustomerRepository : ICustomerRepository
 {
     private readonly CustomerDbContext _context;
@@ -17,34 +13,22 @@ public class CustomerRepository : ICustomerRepository
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
-    /// <summary>
-    /// Adds a new customer
-    /// </summary>
     public Customer Add(Customer customer)
     {
         return _context.Customers.Add(customer).Entity;
     }
 
-    /// <summary>
-    /// Updates an existing customer
-    /// </summary>
     public void Update(Customer customer)
     {
         _context.Entry(customer).State = EntityState.Modified;
     }
 
-    /// <summary>
-    /// Gets a customer by ID
-    /// </summary>
     public async Task<Customer?> GetByIdAsync(int customerId, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
             .FirstOrDefaultAsync(c => c.Id == customerId, cancellationToken);
     }
 
-    /// <summary>
-    /// Gets a customer by email
-    /// </summary>
     public async Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalizedEmail = email.Trim().ToLowerInvariant();
@@ -53,9 +37,6 @@ public class CustomerRepository : ICustomerRepository
             .FirstOrDefaultAsync(c => c.Email.Value == normalizedEmail, cancellationToken);
     }
 
-    /// <summary>
-    /// Checks if email is already registered
-    /// </summary>
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalizedEmail = email.Trim().ToLowerInvariant();
@@ -64,9 +45,6 @@ public class CustomerRepository : ICustomerRepository
             .AnyAsync(c => c.Email.Value == normalizedEmail, cancellationToken);
     }
 
-    /// <summary>
-    /// Gets all customers with optional filtering
-    /// </summary>
     public async Task<IEnumerable<Customer>> GetAllAsync(
         CustomerStatus? status = null,
         int skip = 0,
@@ -87,9 +65,6 @@ public class CustomerRepository : ICustomerRepository
             .ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Gets total count of customers
-    /// </summary>
     public async Task<int> GetCountAsync(CustomerStatus? status = null, CancellationToken cancellationToken = default)
     {
         var query = _context.Customers.AsQueryable();
@@ -102,9 +77,6 @@ public class CustomerRepository : ICustomerRepository
         return await query.CountAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Searches customers by name or email
-    /// </summary>
     public async Task<IEnumerable<Customer>> SearchAsync(
         string searchTerm,
         int skip = 0,
@@ -129,9 +101,6 @@ public class CustomerRepository : ICustomerRepository
             .ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Gets customer including deleted ones (bypasses query filter)
-    /// </summary>
     public async Task<Customer?> GetByIdIncludingDeletedAsync(int customerId, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
@@ -140,9 +109,6 @@ public class CustomerRepository : ICustomerRepository
     }
 }
 
-/// <summary>
-/// Adapter to provide UnitOfWork with MediatR support
-/// </summary>
 internal class UnitOfWorkAdapter : IUnitOfWork
 {
     private readonly CustomerDbContext _context;

@@ -1,9 +1,5 @@
 namespace CustomerServices.Domain.ValueObjects;
 
-/// <summary>
-/// Value Object representing an email address
-/// Encapsulates email validation and formatting
-/// </summary>
 public sealed class Email : ValueObject
 {
     public string Value { get; private set; }

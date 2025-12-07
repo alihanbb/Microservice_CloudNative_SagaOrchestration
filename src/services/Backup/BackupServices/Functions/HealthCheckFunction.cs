@@ -5,9 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace BackupServices.Functions;
 
-/// <summary>
-/// Health check function for the Backup service
-/// </summary>
 public class HealthCheckFunction
 {
     private readonly ILogger<HealthCheckFunction> _logger;

@@ -2,9 +2,6 @@ using System.Text.Json;
 
 namespace CustomerServices.Infra.EventSourcing;
 
-/// <summary>
-/// Entity for storing customer snapshots for faster state rebuilding
-/// </summary>
 public class CustomerSnapshot
 {
     public int Id { get; set; }
@@ -54,9 +51,6 @@ public class CustomerSnapshot
     }
 }
 
-/// <summary>
-/// Data structure for customer snapshot serialization
-/// </summary>
 public class CustomerSnapshotData
 {
     public int Id { get; set; }

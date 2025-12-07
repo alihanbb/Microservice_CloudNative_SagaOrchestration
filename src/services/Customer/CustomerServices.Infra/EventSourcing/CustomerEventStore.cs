@@ -1,24 +1,15 @@
-using CustomerServices.Infra.EventSourcing;
-
 namespace CustomerServices.Infra;
 
-/// <summary>
-/// Implementation of Event Store for Customer aggregate
-/// Stores and retrieves domain events for Event Sourcing
-/// </summary>
 public class CustomerEventStore : ICustomerEventStore
 {
     private readonly CustomerDbContext _context;
-    private const int SnapshotInterval = 10; // Create snapshot every 10 events
+    private const int SnapshotInterval = 10; 
 
     public CustomerEventStore(CustomerDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    /// <summary>
-    /// Appends events to the event store with optimistic concurrency check
-    /// </summary>
     public async Task AppendEventsAsync(
         int customerId,
         IEnumerable<CustomerDomainEvent> events,
@@ -38,7 +29,6 @@ public class CustomerEventStore : ICustomerEventStore
         await _context.CustomerEvents.AddRangeAsync(eventEntities, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
-        // Check if we need to create a snapshot
         var newVersion = eventEntities.Max(e => e.Version);
         if (newVersion % SnapshotInterval == 0)
         {
@@ -50,9 +40,6 @@ public class CustomerEventStore : ICustomerEventStore
         }
     }
 
-    /// <summary>
-    /// Gets all events for a specific customer
-    /// </summary>
     public async Task<IEnumerable<CustomerDomainEvent>> GetEventsAsync(
         int customerId,
         CancellationToken cancellationToken = default)
@@ -68,9 +55,6 @@ public class CustomerEventStore : ICustomerEventStore
             .Cast<CustomerDomainEvent>();
     }
 
-    /// <summary>
-    /// Gets events from a specific version
-    /// </summary>
     public async Task<IEnumerable<CustomerDomainEvent>> GetEventsFromVersionAsync(
         int customerId,
         int fromVersion,
@@ -87,9 +71,6 @@ public class CustomerEventStore : ICustomerEventStore
             .Cast<CustomerDomainEvent>();
     }
 
-    /// <summary>
-    /// Gets the current version number
-    /// </summary>
     public async Task<int> GetCurrentVersionAsync(
         int customerId,
         CancellationToken cancellationToken = default)
@@ -101,9 +82,6 @@ public class CustomerEventStore : ICustomerEventStore
         return maxVersion ?? 0;
     }
 
-    /// <summary>
-    /// Gets the latest snapshot for a customer
-    /// </summary>
     public async Task<Customer?> GetSnapshotAsync(
         int customerId,
         CancellationToken cancellationToken = default)
@@ -116,29 +94,21 @@ public class CustomerEventStore : ICustomerEventStore
         if (snapshot == null)
             return null;
 
-        // Rebuild from snapshot + events after snapshot
         var snapshotData = snapshot.ToSnapshotData();
         if (snapshotData == null)
             return null;
 
-        // Get events after the snapshot
         var events = await GetEventsFromVersionAsync(customerId, snapshot.Version, cancellationToken);
 
-        // If no events after snapshot, we need to rebuild from all events
-        // This is a simplified approach - in production, you'd rebuild from snapshot data
         return await RebuildFromEventsAsync(customerId, cancellationToken);
     }
 
-    /// <summary>
-    /// Saves a snapshot of customer state
-    /// </summary>
     public async Task SaveSnapshotAsync(
         Customer customer,
         CancellationToken cancellationToken = default)
     {
         var snapshot = CustomerSnapshot.FromCustomer(customer);
         
-        // Remove old snapshots (keep only the latest)
         var oldSnapshots = await _context.CustomerSnapshots
             .Where(s => s.CustomerId == customer.Id)
             .ToListAsync(cancellationToken);
@@ -148,9 +118,6 @@ public class CustomerEventStore : ICustomerEventStore
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Rebuilds customer state from all events
-    /// </summary>
     private async Task<Customer?> RebuildFromEventsAsync(
         int customerId,
         CancellationToken cancellationToken)

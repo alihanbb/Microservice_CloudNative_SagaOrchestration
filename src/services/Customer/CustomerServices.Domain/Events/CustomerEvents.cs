@@ -1,8 +1,5 @@
  namespace CustomerServices.Domain.Events;
 
-/// <summary>
-/// Event raised when a new customer is created
-/// </summary>
 public sealed record CustomerCreatedDomainEvent : CustomerDomainEvent
 {
     public string FirstName { get; init; }

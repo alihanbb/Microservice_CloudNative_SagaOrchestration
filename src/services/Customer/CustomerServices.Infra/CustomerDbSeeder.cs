@@ -24,7 +24,6 @@ public static class CustomerDbSeeder
             
             var successCount = 0;
             
-            // Save each customer individually to work around EF Core owned entity tracking
             foreach (var customer in customers)
             {
                 try

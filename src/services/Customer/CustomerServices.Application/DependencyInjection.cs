@@ -1,15 +1,14 @@
 using System.Reflection;
-using CustomerServices.Application.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CustomerServices.Application;
+
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        // Register MediatR
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
@@ -17,7 +16,6 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
 
-        // Register FluentValidation validators
         services.AddValidatorsFromAssembly(assembly);
 
         return services;

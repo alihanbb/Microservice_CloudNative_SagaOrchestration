@@ -1,6 +1,3 @@
-using OrderServices.Application.Common;
-using OrderServices.Application.Common.Interfaces;
-
 namespace OrderServices.Application.Orders.GetOrdersByStatus;
 
 #region Query
