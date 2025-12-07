@@ -90,8 +90,8 @@ public sealed class UpdateOrderStatusCommandHandler : ICommandHandler<UpdateOrde
                     return Result.Failure("Invalid status transition requested");
             }
 
-            _orderRepository.Update(order);
-            await _orderRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            // Update order in CosmosDB
+            await _orderRepository.UpdateAsync(order, cancellationToken);
 
             return Result.Success();
         }

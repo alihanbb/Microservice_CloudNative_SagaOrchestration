@@ -22,22 +22,19 @@ public static class HealthCheckExtensions
                     ? HealthCheckResult.Healthy($"Memory: {allocated / 1024 / 1024} MB")
                     : HealthCheckResult.Degraded($"Memory high: {allocated / 1024 / 1024} MB");
             }, tags: ["api", "memory"])
-            // SQL Server baðlantý kontrolü
             .AddSqlServer(
                 connectionString: connectionString,
                 name: "sqlserver",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: ["database", "sqlserver", "ready"])
-            // DbContext üzerinden EF Core kontrolü
             .AddDbContextCheck<CustomerDbContext>(
                 name: "ef-core-customerdb",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: ["database", "ef-core", "ready"]);
 
-        // Health Check UI yapýlandýrmasý
         services.AddHealthChecksUI(options =>
         {
-            options.SetEvaluationTimeInSeconds(30); // Her 30 saniyede bir kontrol
+            options.SetEvaluationTimeInSeconds(30);
             options.MaximumHistoryEntriesPerEndpoint(50); // Endpoint baþýna maksimum 50 geçmiþ kaydý
             options.SetApiMaxActiveRequests(1); // Ayný anda maksimum 1 istek
 
@@ -51,8 +48,6 @@ public static class HealthCheckExtensions
     public static WebApplication UseCustomerServiceHealthChecks(this WebApplication app)
     {
         app.MapEndpoints();
-
-        // Health Check endpoint'leri
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
             Predicate = _ => true,
@@ -70,12 +65,10 @@ public static class HealthCheckExtensions
             Predicate = check => check.Tags.Contains("live"),
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
         });
-
-        // Health Check UI endpoint'leri
         app.MapHealthChecksUI(options =>
         {
-            options.UIPath = "/health-ui"; // UI sayfasý
-            options.ApiPath = "/health-ui-api"; // UI API endpoint'i
+            options.UIPath = "/health-ui";
+            options.ApiPath = "/health-ui-api"; 
         });
 
         app.MapGet("/", () => Results.Ok(new

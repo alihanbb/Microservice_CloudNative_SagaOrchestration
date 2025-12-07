@@ -132,9 +132,8 @@ public sealed class CreateOrderCommandHandler : ICommandHandler<CreateOrderComma
                 item.UnitPrice);
         }
 
-        // Persist the order
-        _orderRepository.Add(order);
-        await _orderRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        // Persist the order to CosmosDB
+        await _orderRepository.AddAsync(order, cancellationToken);
 
         // Map to response
         var response = new CreateOrderResponse(

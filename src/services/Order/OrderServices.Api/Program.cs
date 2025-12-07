@@ -6,7 +6,7 @@ builder.AddOrderService();
 
 var app = builder.Build();
 
-app.UseOrderService();
+await app.UseOrderServiceAsync();
 
 app.Run();
 

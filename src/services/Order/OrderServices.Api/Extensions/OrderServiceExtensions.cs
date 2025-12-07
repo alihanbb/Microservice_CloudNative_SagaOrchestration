@@ -1,3 +1,8 @@
+using Microsoft.Azure.Cosmos;
+using OrderServices.Api.Configuration;
+using OrderServices.Domain.Aggregate;
+using OrderServices.Infra;
+
 namespace OrderServices.Api.Extensions;
 
 /// <summary>
@@ -5,22 +10,20 @@ namespace OrderServices.Api.Extensions;
 /// </summary>
 public static class OrderServiceExtensions
 {
-    /// <summary>
-    /// Adds all Order Service dependencies to the service collection
-    /// </summary>
     public static WebApplicationBuilder AddOrderService(this WebApplicationBuilder builder)
     {
         // Azure Services (Cosmos DB, Key Vault)
         builder.AddAzureServices();
 
-        // Application Services (Application, Infrastructure, Endpoints)
-        builder.Services.AddApplicationServices(builder.Configuration);
+        // Application and Infrastructure Services (with CosmosDB)
+        var cosmosClient = builder.Services.BuildServiceProvider().GetRequiredService<CosmosClient>();
+        builder.Services.AddApplicationServices(builder.Configuration, cosmosClient);
 
         // Health Checks
         builder.Services.AddOrderServiceHealthChecks(builder.Configuration);
         builder.Services.AddOrderServiceHealthChecksUI();
 
-        // Swagger/OpenAPI
+        // Swagger
         builder.Services.AddOrderServiceSwagger();
 
         // CORS
@@ -29,10 +32,7 @@ public static class OrderServiceExtensions
         return builder;
     }
 
-    /// <summary>
-    /// Configures the Order Service middleware pipeline
-    /// </summary>
-    public static WebApplication UseOrderService(this WebApplication app)
+    public static async Task<WebApplication> UseOrderServiceAsync(this WebApplication app)
     {
         // Exception handling (first in pipeline)
         app.UseApplicationMiddleware();

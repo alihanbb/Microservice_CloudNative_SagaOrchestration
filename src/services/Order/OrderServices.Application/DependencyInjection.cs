@@ -24,7 +24,7 @@ public static class DependencyInjection
             // Register pipeline behaviors in order of execution
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            // Note: TransactionBehavior removed - CosmosDB persists immediately without UnitOfWork
         });
 
         // Register FluentValidation validators

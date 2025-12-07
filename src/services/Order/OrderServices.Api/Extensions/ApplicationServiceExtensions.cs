@@ -1,5 +1,8 @@
+using Microsoft.Azure.Cosmos;
+using OrderServices.Api.Configuration;
 using OrderServices.Api.Middleware;
 using OrderServices.Application;
+using OrderServices.Domain.Aggregate;
 using OrderServices.Infra;
 
 namespace OrderServices.Api.Extensions;
@@ -14,32 +17,20 @@ public static class ApplicationServiceExtensions
     /// </summary>
     public static IServiceCollection AddApplicationServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        CosmosClient cosmosClient)
     {
         // Application Layer (MediatR, FluentValidation, Behaviors)
         services.AddApplication();
 
-        // Infrastructure Layer (DbContext, Repositories)
-        var connectionString = configuration.GetConnectionString("OrderDb")
-            ?? "Server=(localdb)\\mssqllocaldb;Database=OrderDb;Trusted_Connection=True;";
-        services.AddInfrastructure(connectionString);
+        // Infrastructure Layer (CosmosDB Repository)
+        var cosmosConfig = configuration.GetSection(CosmosDbConfiguration.SectionName)
+            .Get<CosmosDbConfiguration>() ?? new CosmosDbConfiguration();
+        
+        var container = cosmosClient.GetContainer(cosmosConfig.DatabaseName, cosmosConfig.ContainerName);
+        services.AddScoped<IOrderRepository>(_ => new CosmosOrderRepository(container));
 
         // Minimal API Endpoints
-        services.AddEndpoints();
-
-        return services;
-    }
-
-    /// <summary>
-    /// Adds all application services with custom connection string
-    /// </summary>
-    public static IServiceCollection AddApplicationServices(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        string connectionString)
-    {
-        services.AddApplication();
-        services.AddInfrastructure(connectionString);
         services.AddEndpoints();
 
         return services;
@@ -70,6 +61,7 @@ public static class ApplicationServiceExtensions
             Service = "Order Service API",
             Version = "v1",
             Status = "Running",
+            Database = "CosmosDB",
             Timestamp = DateTime.UtcNow,
             Endpoints = new
             {

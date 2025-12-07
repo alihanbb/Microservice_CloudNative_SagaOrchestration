@@ -24,11 +24,12 @@ public static class AzureServiceExtensions
                 {
                     PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
                 };
-                clientOptions.ConnectionMode = ConnectionMode.Direct;
                 clientOptions.ConsistencyLevel = ConsistencyLevel.Session;
 
+                // Use Gateway mode for emulator (Direct mode requires specific ports)
                 if (builder.Environment.IsDevelopment())
                 {
+                    clientOptions.ConnectionMode = ConnectionMode.Gateway;
                     clientOptions.HttpClientFactory = () =>
                     {
                         HttpMessageHandler httpMessageHandler = new HttpClientHandler
@@ -37,6 +38,10 @@ public static class AzureServiceExtensions
                         };
                         return new HttpClient(httpMessageHandler);
                     };
+                }
+                else
+                {
+                    clientOptions.ConnectionMode = ConnectionMode.Direct;
                 }
             });
 
@@ -50,6 +55,22 @@ public static class AzureServiceExtensions
     /// </summary>
     public static WebApplicationBuilder AddAzureKeyVault(this WebApplicationBuilder builder)
     {
+        // KeyVault is optional in Development environment
+        var keyVaultConnectionString = builder.Configuration.GetConnectionString("keyvault");
+        var keyVaultUri = builder.Configuration["Aspire:Azure:Security:KeyVault:VaultUri"];
+
+        if (string.IsNullOrEmpty(keyVaultConnectionString) && string.IsNullOrEmpty(keyVaultUri))
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                // Skip KeyVault in development if not configured
+                return builder;
+            }
+            
+            throw new InvalidOperationException(
+                "KeyVault configuration is required. Set 'ConnectionStrings:keyvault' or 'Aspire:Azure:Security:KeyVault:VaultUri'");
+        }
+
         builder.Services.Configure<KeyVaultConfiguration>(
             builder.Configuration.GetSection(KeyVaultConfiguration.SectionName));
 

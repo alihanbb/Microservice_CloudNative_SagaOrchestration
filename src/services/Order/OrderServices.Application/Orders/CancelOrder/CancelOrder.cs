@@ -71,8 +71,8 @@ public sealed class CancelOrderCommandHandler : ICommandHandler<CancelOrderComma
         // Domain aggregate handles the business logic and raises domain events
         order.CancelOrder(request.Reason);
         
-        _orderRepository.Update(order);
-        await _orderRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+        // Update order in CosmosDB
+        await _orderRepository.UpdateAsync(order, cancellationToken);
 
         return Result.Success();
     }

@@ -66,8 +66,8 @@ public sealed class RemoveOrderItemCommandHandler : ICommandHandler<RemoveOrderI
             // Domain aggregate handles validation and business rules
             order.RemoveOrderItem(request.ProductId);
 
-            _orderRepository.Update(order);
-            await _orderRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            // Update order in CosmosDB
+            await _orderRepository.UpdateAsync(order, cancellationToken);
 
             return Result.Success();
         }

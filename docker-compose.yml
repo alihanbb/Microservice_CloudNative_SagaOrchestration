@@ -19,9 +19,48 @@ services:
       retries: 10
       start_period: 30s
 
+  # Azure CosmosDB Emulator
+  cosmosdb:
+    image: mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+    container_name: cosmosdb-emulator
+    hostname: cosmosdb-emulator
+    environment:
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true
+      - AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=127.0.0.1
+    ports:
+      - "8081:8081" # CosmosDB HTTPS endpoint
+      - "11250:10250" # Compute Gateway
+      - "11251:10251" # Direct Mode (TCP)
+      - "11252:10252" # Direct Mode (TCP)
+      - "11253:10253" # Direct Mode (TCP)
+      - "11254:10254" # Direct Mode (TCP)
+      - "11255:10255" # Gateway
+    volumes:
+      - cosmosdb_data:/tmp/cosmos/appdata
+    networks:
+      - saga-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -k https://localhost:8081/_explorer/emulator.pem || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
+  # CosmosDB Emulator Data Explorer is built-in and accessible at:
+  # https://localhost:8081/_explorer/index.html
+  # No separate container needed - the emulator includes its own explorer
+
+
+
 networks:
   saga-network:
     driver: bridge
 
 volumes:
   sqlserver_data:
+  cosmosdb_data:

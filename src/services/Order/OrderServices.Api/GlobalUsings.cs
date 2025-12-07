@@ -1,5 +1,6 @@
 global using MediatR;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.EntityFrameworkCore;
 global using OrderServices.Application.Common;
 global using OrderServices.Application.Orders.CreateOrder;
 global using OrderServices.Application.Orders.GetOrderById;

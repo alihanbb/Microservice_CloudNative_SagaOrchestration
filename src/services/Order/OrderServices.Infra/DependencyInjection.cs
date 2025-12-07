@@ -1,3 +1,4 @@
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OrderServices.Infra;
@@ -6,37 +7,26 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        string connectionString)
+        CosmosClient cosmosClient,
+        string databaseName,
+        string containerName)
     {
-        services.AddDbContext<OrderDbContext>(options =>
+        services.AddSingleton(cosmosClient);
+        services.AddScoped<IOrderRepository>(sp =>
         {
-            options.UseSqlServer(connectionString, sqlOptions =>
-            {
-                sqlOptions.MigrationsAssembly(typeof(OrderDbContext).Assembly.FullName);
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    errorNumbersToAdd: null);
-            });
+            var client = sp.GetRequiredService<CosmosClient>();
+            var container = client.GetContainer(databaseName, containerName);
+            return new CosmosOrderRepository(container);
         });
-
-        services.AddScoped<IOrderRepository, OrderRepository>();
-
-        services.AddScoped<IRequestManager, RequestManager>();
 
         return services;
     }
 
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        Action<DbContextOptionsBuilder> optionsAction)
+        Container container)
     {
-        services.AddDbContext<OrderDbContext>(optionsAction);
-
-        services.AddScoped<IOrderRepository, OrderRepository>();
-
-        services.AddScoped<IRequestManager, RequestManager>();
-
+        services.AddScoped<IOrderRepository>(_ => new CosmosOrderRepository(container));
         return services;
     }
 }
